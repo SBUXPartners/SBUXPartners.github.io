@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipster - Starbucks Tip Distribution Calculator</title>
+    <link rel="icon" type="image/png" href="starbucks.png">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f7f7f7;
+            color: #1e3932;
+        }
+        h1, h2 {
+            color: #00704A;
+            text-align: center;
+        }
+        #storeInfo {
+            text-align: center;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #4a4a4a;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            background-color: #fff;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #00704A;
+            color: white;
+            font-weight: normal;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d4e9e2;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #00704A;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #00704A;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #005c3e;
+        }
+        #totalTips {
+            font-size: 1.2em;
+            padding: 10px;
+        }
+        .delete-btn {
+            background-color: #d4e9e2;
+            color: #1e3932;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .delete-btn:hover {
+            background-color: #b9d7c8;
+        }
+        #summary {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #credit {
+            text-align: center;
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tipster</h1>
+    <h2>Starbucks Tip Distribution Calculator</h2>
+    <div id="storeInfo">Store #69600 - 139 Endicott St, Danvers MA 01923</div>
+    <table id="tipTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Hours Worked</th>
+                <th>Tips</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <button onclick="addRow()">Add Barista</button>
+    <button onclick="calculateTips()">Calculate Tips</button>
+    <p>Total Tips: $<input type="number" id="totalTips" min="0" step="1" placeholder="Enter total tips"></p>
+    <div id="summary"></div>
+
+    <div id="credit">Created by Starbucks Barista William Walsh</div>
+
+    <script>
+        function addRow() {
+            const table = document.getElementById("tipTable").getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Enter name" class="nameInput"></td>
+                <td><input type="number" min="0" step="0.5" placeholder="Enter hours" class="hoursInput"></td>
+                <td>$0.00</td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+            `;
+        }
+
+        function deleteRow(btn) {
+            const row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        function calculateTips() {
+            const table = document.getElementById("tipTable").getElementsByTagName('tbody')[0];
+            const rows = table.getElementsByTagName('tr');
+            const totalTips = Math.round(parseFloat(document.getElementById("totalTips").value)) || 0;
+
+            let totalHours = 0;
+            for (let row of rows) {
+                const hours = parseFloat(row.cells[1].getElementsByTagName('input')[0].value) || 0;
+                totalHours += hours;
+            }
+
+            let summaryHTML = "<h2>Tip Distribution Summary</h2>";
+            let remainingTips = totalTips;
+            let lastRow;
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const name = row.cells[0].getElementsByTagName('input')[0].value || "Unnamed";
+                const hours = parseFloat(row.cells[1].getElementsByTagName('input')[0].value) || 0;
+                let tipShare = Math.round((hours / totalHours) * totalTips);
+                
+                // Adjust for rounding errors on the last row
+                if (i === rows.length - 1) {
+                    tipShare = remainingTips;
+                } else {
+                    remainingTips -= tipShare;
+                }
+
+                row.cells[2].textContent = `$${tipShare}`;
+                summaryHTML += `<p>${name}: $${tipShare} (${hours} hours)</p>`;
+            }
+
+            document.getElementById("summary").innerHTML = summaryHTML;
+        }
+
+        // Add initial rows
+        addRow();
+        addRow();
+    </script>
+</body>
+</html>
