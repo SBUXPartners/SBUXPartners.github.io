@@ -229,6 +229,30 @@
                 <td>$0.00</td>
                 <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
             `;
+            
+            // Add event listeners to the new inputs
+            addInputListeners(newRow);
+        }
+
+        function addInputListeners(row) {
+            const inputs = row.querySelectorAll('input');
+            inputs.forEach((input, index) => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (index < inputs.length - 1) {
+                            // Move to the next input in the same row
+                            inputs[index + 1].focus();
+                        } else if (row.nextElementSibling) {
+                            // Move to the first input of the next row
+                            row.nextElementSibling.querySelector('input').focus();
+                        } else {
+                            // If it's the last input of the last row, move to totalTips
+                            document.getElementById('totalTips').focus();
+                        }
+                    }
+                });
+            });
         }
 
         function deleteRow(btn) {
@@ -269,9 +293,21 @@
             document.getElementById("summary").innerHTML = summaryHTML;
         }
 
-        // Add initial rows
+        // Add initial rows and set up event listeners
         addRow();
         addRow();
+
+        // Add event listeners to existing rows
+        const existingRows = document.querySelectorAll('#tipTable tbody tr');
+        existingRows.forEach(row => addInputListeners(row));
+
+        // Add event listener to totalTips input
+        document.getElementById('totalTips').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                calculateTips();
+            }
+        });
     </script>
 </body>
 </html>
