@@ -8,9 +8,9 @@
     <style>
         body {
             font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            max-width: 900px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 30px;
+            padding: 15px;
             background-color: #f9f9f9;
             color: #2d2d2d;
         }
@@ -18,7 +18,7 @@
             background-color: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 24px;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
         h1, h2 {
@@ -34,16 +34,16 @@
         table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 0 15px;
+            border-spacing: 0 10px;
             margin-bottom: 20px;
         }
         th, td {
-            padding: 18px;
+            padding: 12px;
             text-align: left;
             background-color: #fff;
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         th {
             background-color: #0078d4;
@@ -115,16 +115,27 @@
         }
         @media (max-width: 600px) {
             body {
-                padding: 15px;
+                padding: 10px;
             }
             .app-container {
                 padding: 15px;
+                border-radius: 16px;
             }
             th, td {
-                padding: 12px;
+                padding: 8px;
+                font-size: 14px;
+            }
+            input[type="text"], input[type="number"] {
+                padding: 8px;
+                font-size: 14px;
             }
             button {
-                padding: 10px 20px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            #totalTips {
+                font-size: 1em;
+                padding: 8px;
             }
         }
     </style>
