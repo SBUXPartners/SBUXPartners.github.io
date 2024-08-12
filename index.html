@@ -90,16 +90,17 @@
             box-shadow: 0 0 0 2px rgba(0,120,212,0.2);
         }
         .delete-btn {
-            background-color: #f3f3f3;
-            color: #2d2d2d;
+            background-color: #0078d4;
+            color: white;
             border: none;
             border-radius: 6px;
             padding: 8px 16px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 600;
         }
         .delete-btn:hover {
-            background-color: #e6e6e6;
+            background-color: #006cbd;
         }
         #summary {
             background-color: #fff;
@@ -127,6 +128,12 @@
         }
         .summary-details {
             color: #4a4a4a;
+        }
+        body.dark-mode .summary-details {
+            color: #8bb3d9; /* Light blue for better visibility in dark mode */
+        }
+        body.dark-mode .summary-item {
+            border-bottom: 1px solid #3a3a3a; /* Darker line for separation in dark mode */
         }
         .hourly-rate {
             background-color: #f0f8ff;
@@ -191,6 +198,79 @@
                 margin: 10px auto;
             }
         }
+        .mode-toggle {
+            position: absolute;
+            top: 10px;
+            right: 120px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .mode-toggle:hover {
+            background-color: #006cbd;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .app-container {
+            background-color: rgba(30, 30, 30, 0.8);
+        }
+
+        body.dark-mode h1, body.dark-mode h2 {
+            color: #4db8ff;
+        }
+
+        body.dark-mode th, body.dark-mode td {
+            background-color: #2d2d2d;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input[type="text"], body.dark-mode input[type="number"] {
+            background-color: #3d3d3d;
+            color: #f0f0f0;
+            border-color: #555;
+        }
+
+        body.dark-mode #summary {
+            background-color: #2d2d2d;
+        }
+
+        body.dark-mode .hourly-rate {
+            background-color: #003366;
+            color: #4db8ff;
+        }
+
+        body.dark-mode #credit {
+            color: #aaa;
+        }
+
+        body.dark-mode .delete-btn {
+            background-color: #0078d4;
+            color: white;
+        }
+
+        body.dark-mode .delete-btn:hover {
+            background-color: #006cbd;
+        }
+
+        @media (max-width: 600px) {
+            .mode-toggle {
+                position: static;
+                display: block;
+                margin: 10px auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -198,6 +278,7 @@
         <h1>Tippy</h1>
         <h2>Starbucks Partner Tips Calculator</h2>
         <div id="storeInfo">Store #69600 - 139 Endicott St, Danvers MA 01923</div>
+        <button id="modeToggle" class="mode-toggle">Dark Mode</button>
         <button onclick="window.location.href='changelog.html'" class="changelog-btn">Changelog</button>
         <table id="tipTable">
             <thead>
@@ -306,6 +387,18 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
                 calculateTips();
+            }
+        });
+
+        const modeToggle = document.getElementById('modeToggle');
+        const body = document.body;
+
+        modeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                modeToggle.textContent = 'Light Mode';
+            } else {
+                modeToggle.textContent = 'Dark Mode';
             }
         });
     </script>
