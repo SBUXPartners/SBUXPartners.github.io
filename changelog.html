@@ -40,6 +40,33 @@
         .back-btn:hover {
             background-color: #006cbd;
         }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode h1 {
+            color: #4db8ff;
+        }
+
+        body.dark-mode .patch-note {
+            background-color: #2d2d2d;
+            box-shadow: 0 2px 4px rgba(255,255,255,0.1);
+        }
+
+        body.dark-mode .patch-date {
+            color: #4db8ff;
+        }
+
+        body.dark-mode .back-btn {
+            background-color: #0078d4;
+        }
+
+        body.dark-mode .back-btn:hover {
+            background-color: #006cbd;
+        }
     </style>
 </head>
 <body>
@@ -73,5 +100,37 @@
     </div>
 
     <a href="index.html" class="back-btn">Back to Calculator</a>
+
+    <script>
+        function setMode(mode) {
+            const body = document.body;
+            if (mode === 'dark') {
+                body.classList.add('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+            }
+            localStorage.setItem('mode', mode);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            if (mode) {
+                setMode(mode);
+            } else {
+                const savedMode = localStorage.getItem('mode');
+                if (savedMode) {
+                    setMode(savedMode);
+                }
+            }
+        });
+
+        const backBtn = document.querySelector('.back-btn');
+        backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const currentMode = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            window.location.href = `index.html?mode=${currentMode}`;
+        });
+    </script>
 </body>
 </html>

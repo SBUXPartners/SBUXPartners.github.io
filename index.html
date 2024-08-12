@@ -236,6 +236,11 @@
             color: #f0f0f0;
         }
 
+        body.dark-mode th {
+            background-color: #0078d4; /* Changed to match the blue used in the site */
+            color: white;
+        }
+
         body.dark-mode input[type="text"], body.dark-mode input[type="number"] {
             background-color: #3d3d3d;
             color: #f0f0f0;
@@ -393,13 +398,40 @@
         const modeToggle = document.getElementById('modeToggle');
         const body = document.body;
 
-        modeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            if (body.classList.contains('dark-mode')) {
+        // Function to set the mode
+        function setMode(mode) {
+            if (mode === 'dark') {
+                body.classList.add('dark-mode');
                 modeToggle.textContent = 'Light Mode';
             } else {
+                body.classList.remove('dark-mode');
                 modeToggle.textContent = 'Dark Mode';
             }
+            localStorage.setItem('mode', mode);
+        }
+
+        // Check for saved mode on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedMode = localStorage.getItem('mode');
+            if (savedMode) {
+                setMode(savedMode);
+            }
+        });
+
+        modeToggle.addEventListener('click', () => {
+            if (body.classList.contains('dark-mode')) {
+                setMode('light');
+            } else {
+                setMode('dark');
+            }
+        });
+
+        // Update the changelog button to include the current mode
+        const changelogBtn = document.querySelector('.changelog-btn');
+        changelogBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const currentMode = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            window.location.href = `changelog.html?mode=${currentMode}`;
         });
     </script>
 </body>
