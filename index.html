@@ -20,6 +20,7 @@
             border-radius: 24px;
             padding: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         h1, h2 {
             color: #0078d4;
@@ -107,6 +108,34 @@
             margin-top: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
+        #summary h2 {
+            margin-top: 0;
+            color: #0078d4;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        .summary-name {
+            font-weight: 600;
+        }
+        .summary-details {
+            color: #4a4a4a;
+        }
+        .hourly-rate {
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #0078d4;
+        }
         #credit {
             text-align: center;
             font-size: 0.8em;
@@ -138,6 +167,30 @@
                 padding: 8px;
             }
         }
+        .changelog-btn {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+        }
+        .changelog-btn:hover {
+            background-color: #006cbd;
+        }
+        @media (max-width: 600px) {
+            .changelog-btn {
+                position: static;
+                display: block;
+                margin: 10px auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -145,6 +198,7 @@
         <h1>Tippy</h1>
         <h2>Starbucks Partner Tips Calculator</h2>
         <div id="storeInfo">Store #69600 - 139 Endicott St, Danvers MA 01923</div>
+        <button onclick="window.location.href='changelog.html'" class="changelog-btn">Changelog</button>
         <table id="tipTable">
             <thead>
                 <tr>
@@ -193,25 +247,23 @@
                 totalHours += hours;
             }
 
-            let summaryHTML = "<h2>Tip Distribution Summary</h2>";
-            let remainingTips = totalTips;
-            let lastRow;
+            // Calculate the hourly tip rate
+            const hourlyTipRate = totalHours > 0 ? (totalTips / totalHours).toFixed(2) : 0;
 
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
+            let summaryHTML = `<h2>Tip Distribution Summary</h2>`;
+            summaryHTML += `<div class="hourly-rate">Hourly Tip Rate: $${hourlyTipRate}/hr</div>`;
+
+            for (let row of rows) {
                 const name = row.cells[0].getElementsByTagName('input')[0].value || "Unnamed";
                 const hours = parseFloat(row.cells[1].getElementsByTagName('input')[0].value) || 0;
-                let tipShare = Math.round((hours / totalHours) * totalTips);
-                
-                // Adjust for rounding errors on the last row
-                if (i === rows.length - 1) {
-                    tipShare = remainingTips;
-                } else {
-                    remainingTips -= tipShare;
-                }
+                const tipShare = Math.round(hours * hourlyTipRate);
 
                 row.cells[2].textContent = `$${tipShare}`;
-                summaryHTML += `<p>${name}: $${tipShare} (${hours} hours)</p>`;
+                summaryHTML += `
+                    <div class="summary-item">
+                        <span class="summary-name">${name}</span>
+                        <span class="summary-details">$${tipShare} (${hours} hours)</span>
+                    </div>`;
             }
 
             document.getElementById("summary").innerHTML = summaryHTML;
