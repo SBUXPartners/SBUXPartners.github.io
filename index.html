@@ -276,35 +276,6 @@
                 margin: 10px auto;
             }
         }
-
-        .social-btn {
-            background-color: #0078d4;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            position: absolute;
-            top: 10px;
-            right: 230px;
-            font-size: 14px;
-        }
-        .social-btn:hover {
-            background-color: #006cbd;
-        }
-        @media (max-width: 600px) {
-            .social-btn {
-                position: static;
-                display: block;
-                margin: 10px auto;
-            }
-            .mode-toggle, .changelog-btn, .social-btn {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -314,7 +285,6 @@
         <div id="storeInfo">Store #69600 - 139 Endicott St, Danvers MA 01923</div>
         <button id="modeToggle" class="mode-toggle">Dark Mode</button>
         <button onclick="window.location.href='changelog.html'" class="changelog-btn">Changelog</button>
-        <button onclick="window.open('https://www.instagram.com/starbucksdanvers', '_blank')" class="social-btn">Instagram</button>
         <table id="tipTable">
             <thead>
                 <tr>
@@ -390,7 +360,7 @@
             // Calculate the hourly tip rate
             const hourlyTipRate = totalHours > 0 ? (totalTips / totalHours).toFixed(2) : 0;
 
-            let summaryHTML = `<h2>Tip Summary</h2>`;
+            let summaryHTML = `<h2>Tip Distribution Summary</h2>`;
             summaryHTML += `<div class="hourly-rate">Hourly Tip Rate: $${hourlyTipRate}/hr</div>`;
 
             for (let row of rows) {
