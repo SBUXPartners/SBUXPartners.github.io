@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tipsie - Starbucks Partner Tips Calculator</title>
     <link rel="icon" type="image/png" href="starbucks.png">
+    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
     <style>
         body {
             font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -443,9 +444,22 @@
         async function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                const imageBlob = await resizeImage(file);
-                const extractedData = await performOCR(imageBlob);
-                populateTable(extractedData);
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.textContent = 'Processing image...';
+                loadingIndicator.style.textAlign = 'center';
+                loadingIndicator.style.marginTop = '20px';
+                document.body.appendChild(loadingIndicator);
+
+                try {
+                    const imageBlob = await resizeImage(file);
+                    const extractedData = await performOCR(imageBlob);
+                    populateTable(extractedData);
+                } catch (error) {
+                    console.error('Error processing image:', error);
+                    alert('An error occurred while processing the image. Please try again.');
+                } finally {
+                    document.body.removeChild(loadingIndicator);
+                }
             }
         }
 
@@ -470,16 +484,43 @@
         }
 
         async function performOCR(imageBlob) {
-            // This is a placeholder for the actual OCR implementation
-            // You would need to integrate with a server-side OCR service or use a client-side library
             console.log('Performing OCR on the image...');
             
-            // Simulating OCR results
-            return [
-                { name: 'John Doe', hours: 20 },
-                { name: 'Jane Smith', hours: 25 },
-                { name: 'Bob Johnson', hours: 18 }
-            ];
+            const worker = await Tesseract.createWorker();
+            await worker.loadLanguage('eng');
+            await worker.initialize('eng');
+            
+            const { data: { text } } = await worker.recognize(imageBlob);
+            await worker.terminate();
+
+            console.log('OCR Result:', text);
+
+            // Parse the OCR result
+            const lines = text.split('\n');
+            const data = [];
+            let nameColumnIndex = -1;
+            let hoursColumnIndex = -1;
+
+            for (let i = 0; i < lines.length; i++) {
+                const columns = lines[i].split(/\s+/);
+                
+                if (nameColumnIndex === -1) {
+                    // Find the "Partner Name" and "Total Tippable Hours" columns
+                    nameColumnIndex = columns.findIndex(col => col.toLowerCase().includes('partner') && col.toLowerCase().includes('name'));
+                    hoursColumnIndex = columns.findIndex(col => col.toLowerCase().includes('total') && col.toLowerCase().includes('tippable') && col.toLowerCase().includes('hours'));
+                    continue;
+                }
+
+                if (nameColumnIndex !== -1 && hoursColumnIndex !== -1 && columns.length > Math.max(nameColumnIndex, hoursColumnIndex)) {
+                    const name = columns[nameColumnIndex];
+                    const hours = parseFloat(columns[hoursColumnIndex]);
+                    if (name && !isNaN(hours)) {
+                        data.push({ name, hours });
+                    }
+                }
+            }
+
+            return data;
         }
 
         function populateTable(data) {
