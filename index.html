@@ -453,7 +453,12 @@
                 try {
                     const imageBlob = await resizeImage(file);
                     const extractedData = await performOCR(imageBlob);
-                    populateTable(extractedData);
+                    if (extractedData.length > 0) {
+                        populateTable(extractedData);
+                        alert('Data successfully extracted and populated!');
+                    } else {
+                        alert('No data could be extracted from the image. Please check the image and try again.');
+                    }
                 } catch (error) {
                     console.error('Error processing image:', error);
                     alert('An error occurred while processing the image. Please try again.');
@@ -500,19 +505,30 @@
             const data = [];
             let nameColumnIndex = -1;
             let hoursColumnIndex = -1;
+            let headerFound = false;
 
             for (let i = 0; i < lines.length; i++) {
-                const columns = lines[i].split(/\s+/);
+                const columns = lines[i].split(/\s+/).filter(Boolean);
                 
-                if (nameColumnIndex === -1) {
+                if (!headerFound) {
                     // Find the "Partner Name" and "Total Tippable Hours" columns
-                    nameColumnIndex = columns.findIndex(col => col.toLowerCase().includes('partner') && col.toLowerCase().includes('name'));
-                    hoursColumnIndex = columns.findIndex(col => col.toLowerCase().includes('total') && col.toLowerCase().includes('tippable') && col.toLowerCase().includes('hours'));
+                    nameColumnIndex = columns.findIndex(col => 
+                        col.toLowerCase().includes('partner') && 
+                        columns[columns.indexOf(col) + 1]?.toLowerCase().includes('name')
+                    );
+                    hoursColumnIndex = columns.findIndex(col => 
+                        col.toLowerCase().includes('total') && 
+                        columns[columns.indexOf(col) + 1]?.toLowerCase().includes('tippable') &&
+                        columns[columns.indexOf(col) + 2]?.toLowerCase().includes('hours')
+                    );
+                    if (nameColumnIndex !== -1 && hoursColumnIndex !== -1) {
+                        headerFound = true;
+                    }
                     continue;
                 }
 
-                if (nameColumnIndex !== -1 && hoursColumnIndex !== -1 && columns.length > Math.max(nameColumnIndex, hoursColumnIndex)) {
-                    const name = columns[nameColumnIndex];
+                if (columns.length > Math.max(nameColumnIndex, hoursColumnIndex)) {
+                    const name = columns.slice(nameColumnIndex, hoursColumnIndex).join(' ').trim();
                     const hours = parseFloat(columns[hoursColumnIndex]);
                     if (name && !isNaN(hours)) {
                         data.push({ name, hours });
@@ -520,6 +536,7 @@
                 }
             }
 
+            console.log('Extracted data:', data);
             return data;
         }
 
