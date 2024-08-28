@@ -285,9 +285,8 @@
         <div id="storeInfo">Store #69600 - 139 Endicott St, Danvers MA 01923</div>
         <button id="modeToggle" class="mode-toggle">Dark Mode</button>
         <button onclick="window.location.href='changelog.html'" class="changelog-btn">Changelog</button>
-        <button id="captureImage">Capture Image</button>
-        <video id="video" style="display:none;"></video>
-        <canvas id="canvas" style="display:none;"></canvas>
+        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+        <button onclick="document.getElementById('imageUpload').click()">Upload Tips Distribution Image</button>
         <table id="tipTable">
             <thead>
                 <tr>
@@ -437,44 +436,56 @@
             window.location.href = `changelog.html?mode=${currentMode}`;
         });
 
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const captureButton = document.getElementById('captureImage');
+        const imageUpload = document.getElementById('imageUpload');
 
-        // Access the device camera
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-            .then(stream => {
-                video.srcObject = stream;
-                video.play();
-            })
-            .catch(error => {
-                console.error('Error accessing the camera:', error);
+        imageUpload.addEventListener('change', handleImageUpload);
+
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const imageBlob = await resizeImage(file);
+                const extractedData = await performOCR(imageBlob);
+                populateTable(extractedData);
+            }
+        }
+
+        async function resizeImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const scaleFactor = 1000 / Math.max(img.width, img.height);
+                        canvas.width = img.width * scaleFactor;
+                        canvas.height = img.height * scaleFactor;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob(resolve, 'image/jpeg', 0.8);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
             });
+        }
 
-        captureButton.addEventListener('click', () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+        async function performOCR(imageBlob) {
+            // This is a placeholder for the actual OCR implementation
+            // You would need to integrate with a server-side OCR service or use a client-side library
+            console.log('Performing OCR on the image...');
             
-            // Convert canvas to blob
-            canvas.toBlob(blob => {
-                handleImageCapture(blob);
-            }, 'image/jpeg');
-        });
-
-        async function handleImageCapture(imageBlob) {
-            // Here, we'd need to implement or call an OCR service
-            // This is a placeholder for the OCR and parsing logic
-            const extractedData = await performOCR(imageBlob);
-            populateTable(extractedData);
+            // Simulating OCR results
+            return [
+                { name: 'John Doe', hours: 20 },
+                { name: 'Jane Smith', hours: 25 },
+                { name: 'Bob Johnson', hours: 18 }
+            ];
         }
 
         function populateTable(data) {
-            // Clear existing rows
             const tbody = document.getElementById("tipTable").getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
 
-            // Add new rows based on extracted data
             data.forEach(({ name, hours }) => {
                 const newRow = tbody.insertRow();
                 newRow.innerHTML = `
@@ -486,9 +497,6 @@
                 addInputListeners(newRow);
             });
         }
-
-        // Remove the previous event listener for file upload
-        document.getElementById('imageUpload').removeEventListener('change', handleImageUpload);
     </script>
 </body>
 </html>
