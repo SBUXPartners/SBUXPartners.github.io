@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tipsie - Starbucks Tips Calculator</title>
+    <title>Tipsie - Starbucks Partner Tips Calculator</title>
     <link rel="icon" type="image/png" href="starbucks.png">
     <style>
         body {
@@ -281,10 +281,13 @@
 <body>
     <div class="app-container">
         <h1>Tipsie</h1>
-        <h2>Starbucks Tips Calculator</h2>
+        <h2>Starbucks Partner Tips Calculator</h2>
         <div id="storeInfo">Store #69600 - 139 Endicott St, Danvers MA 01923</div>
         <button id="modeToggle" class="mode-toggle">Dark Mode</button>
         <button onclick="window.location.href='changelog.html'" class="changelog-btn">Changelog</button>
+        <button id="captureImage">Capture Image</button>
+        <video id="video" style="display:none;"></video>
+        <canvas id="canvas" style="display:none;"></canvas>
         <table id="tipTable">
             <thead>
                 <tr>
@@ -433,6 +436,59 @@
             const currentMode = body.classList.contains('dark-mode') ? 'dark' : 'light';
             window.location.href = `changelog.html?mode=${currentMode}`;
         });
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('captureImage');
+
+        // Access the device camera
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(error => {
+                console.error('Error accessing the camera:', error);
+            });
+
+        captureButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            // Convert canvas to blob
+            canvas.toBlob(blob => {
+                handleImageCapture(blob);
+            }, 'image/jpeg');
+        });
+
+        async function handleImageCapture(imageBlob) {
+            // Here, we'd need to implement or call an OCR service
+            // This is a placeholder for the OCR and parsing logic
+            const extractedData = await performOCR(imageBlob);
+            populateTable(extractedData);
+        }
+
+        function populateTable(data) {
+            // Clear existing rows
+            const tbody = document.getElementById("tipTable").getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+
+            // Add new rows based on extracted data
+            data.forEach(({ name, hours }) => {
+                const newRow = tbody.insertRow();
+                newRow.innerHTML = `
+                    <td><input type="text" value="${name}" class="nameInput"></td>
+                    <td><input type="number" value="${hours}" min="0" step="0.5" class="hoursInput"></td>
+                    <td>$0.00</td>
+                    <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+                `;
+                addInputListeners(newRow);
+            });
+        }
+
+        // Remove the previous event listener for file upload
+        document.getElementById('imageUpload').removeEventListener('change', handleImageUpload);
     </script>
 </body>
 </html>
