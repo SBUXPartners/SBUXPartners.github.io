@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tipsie - Starbucks Partner Tips Calculator</title>
     <link rel="icon" type="image/png" href="starbucks.png">
-    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
     <style>
         body {
             font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -286,8 +285,6 @@
         <div id="storeInfo">Store #69600 - 139 Endicott St, Danvers MA 01923</div>
         <button id="modeToggle" class="mode-toggle">Dark Mode</button>
         <button onclick="window.location.href='changelog.html'" class="changelog-btn">Changelog</button>
-        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
-        <button onclick="document.getElementById('imageUpload').click()">Upload Image</button>
         <table id="tipTable">
             <thead>
                 <tr>
@@ -336,8 +333,10 @@
                             // Move to the first input of the next row
                             row.nextElementSibling.querySelector('input').focus();
                         } else {
-                            // If it's the last input of the last row, move to totalTips
-                            document.getElementById('totalTips').focus();
+                            // If it's the last input of the last row
+                            addRow();
+                            const newRow = row.parentNode.lastElementChild;
+                            newRow.querySelector('input').focus();
                         }
                     }
                 });
@@ -436,125 +435,6 @@
             const currentMode = body.classList.contains('dark-mode') ? 'dark' : 'light';
             window.location.href = `changelog.html?mode=${currentMode}`;
         });
-
-        const imageUpload = document.getElementById('imageUpload');
-
-        imageUpload.addEventListener('change', handleImageUpload);
-
-        async function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const loadingIndicator = document.createElement('div');
-                loadingIndicator.textContent = 'Processing image...';
-                loadingIndicator.style.textAlign = 'center';
-                loadingIndicator.style.marginTop = '20px';
-                document.body.appendChild(loadingIndicator);
-
-                try {
-                    const imageBlob = await resizeImage(file);
-                    const extractedData = await performOCR(imageBlob);
-                    if (extractedData.length > 0) {
-                        populateTable(extractedData);
-                        alert('Data successfully extracted and populated!');
-                    } else {
-                        alert('No data could be extracted from the image. Please check the image and try again.');
-                    }
-                } catch (error) {
-                    console.error('Error processing image:', error);
-                    alert('An error occurred while processing the image. Please try again.');
-                } finally {
-                    document.body.removeChild(loadingIndicator);
-                }
-            }
-        }
-
-        async function resizeImage(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const scaleFactor = 1000 / Math.max(img.width, img.height);
-                        canvas.width = img.width * scaleFactor;
-                        canvas.height = img.height * scaleFactor;
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        canvas.toBlob(resolve, 'image/jpeg', 0.8);
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function performOCR(imageBlob) {
-            console.log('Performing OCR on the image...');
-            
-            const worker = await Tesseract.createWorker();
-            await worker.loadLanguage('eng');
-            await worker.initialize('eng');
-            
-            const { data: { text } } = await worker.recognize(imageBlob);
-            await worker.terminate();
-
-            console.log('OCR Result:', text);
-
-            // Parse the OCR result
-            const lines = text.split('\n');
-            const data = [];
-            let nameColumnIndex = -1;
-            let hoursColumnIndex = -1;
-            let headerFound = false;
-
-            for (let i = 0; i < lines.length; i++) {
-                const columns = lines[i].split(/\s+/).filter(Boolean);
-                
-                if (!headerFound) {
-                    // Find the "Partner Name" and "Total Tippable Hours" columns
-                    nameColumnIndex = columns.findIndex(col => 
-                        col.toLowerCase().includes('partner') && 
-                        columns[columns.indexOf(col) + 1]?.toLowerCase().includes('name')
-                    );
-                    hoursColumnIndex = columns.findIndex(col => 
-                        col.toLowerCase().includes('total') && 
-                        columns[columns.indexOf(col) + 1]?.toLowerCase().includes('tippable') &&
-                        columns[columns.indexOf(col) + 2]?.toLowerCase().includes('hours')
-                    );
-                    if (nameColumnIndex !== -1 && hoursColumnIndex !== -1) {
-                        headerFound = true;
-                    }
-                    continue;
-                }
-
-                if (columns.length > Math.max(nameColumnIndex, hoursColumnIndex)) {
-                    const name = columns.slice(nameColumnIndex, hoursColumnIndex).join(' ').trim();
-                    const hours = parseFloat(columns[hoursColumnIndex]);
-                    if (name && !isNaN(hours)) {
-                        data.push({ name, hours });
-                    }
-                }
-            }
-
-            console.log('Extracted data:', data);
-            return data;
-        }
-
-        function populateTable(data) {
-            const tbody = document.getElementById("tipTable").getElementsByTagName('tbody')[0];
-            tbody.innerHTML = '';
-
-            data.forEach(({ name, hours }) => {
-                const newRow = tbody.insertRow();
-                newRow.innerHTML = `
-                    <td><input type="text" value="${name}" class="nameInput"></td>
-                    <td><input type="number" value="${hours}" min="0" step="0.5" class="hoursInput"></td>
-                    <td>$0.00</td>
-                    <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
-                `;
-                addInputListeners(newRow);
-            });
-        }
     </script>
 </body>
 </html>
