@@ -66,7 +66,7 @@
         }
         button {
             padding: 12px 24px;
-            background-color: #0078d4;
+            background-color: #00704A;
             color: white;
             border: none;
             border-radius: 8px;
@@ -75,7 +75,7 @@
             transition: all 0.3s ease;
         }
         button:hover {
-            background-color: #006cbd;
+            background-color: #005c3e;
             transform: translateY(-2px);
         }
         #totalTips {
@@ -90,7 +90,7 @@
             box-shadow: 0 0 0 2px rgba(0,120,212,0.2);
         }
         .delete-btn {
-            background-color: #0078d4;
+            background-color: #00704A;
             color: white;
             border: none;
             border-radius: 6px;
@@ -100,7 +100,7 @@
             font-weight: 600;
         }
         .delete-btn:hover {
-            background-color: #006cbd;
+            background-color: #005c3e;
         }
         #summary {
             background-color: #fff;
@@ -175,7 +175,7 @@
             }
         }
         .changelog-btn {
-            background-color: #0078d4;
+            background-color: #00704A;
             color: white;
             border: none;
             border-radius: 8px;
@@ -189,7 +189,7 @@
             font-size: 14px;
         }
         .changelog-btn:hover {
-            background-color: #006cbd;
+            background-color: #005c3e;
         }
         @media (max-width: 600px) {
             .changelog-btn {
@@ -202,7 +202,7 @@
             position: absolute;
             top: 10px;
             right: 120px;
-            background-color: #0078d4;
+            background-color: #00704A;
             color: white;
             border: none;
             border-radius: 8px;
@@ -214,7 +214,7 @@
         }
 
         .mode-toggle:hover {
-            background-color: #006cbd;
+            background-color: #005c3e;
         }
 
         /* Dark mode styles */
@@ -261,12 +261,12 @@
         }
 
         body.dark-mode .delete-btn {
-            background-color: #0078d4;
+            background-color: #00704A;
             color: white;
         }
 
         body.dark-mode .delete-btn:hover {
-            background-color: #006cbd;
+            background-color: #005c3e;
         }
 
         @media (max-width: 600px) {
@@ -288,8 +288,8 @@
         <table id="tipTable">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Hours Worked</th>
+                    <th>Partner Name</th>
+                    <th>Total Tippable Hours</th>
                     <th>Tips</th>
                     <th>Action</th>
                 </tr>
@@ -310,8 +310,8 @@
             const table = document.getElementById("tipTable").getElementsByTagName('tbody')[0];
             const newRow = table.insertRow();
             newRow.innerHTML = `
-                <td><input type="text" placeholder="Enter name" class="nameInput"></td>
-                <td><input type="number" min="0" step="0.5" placeholder="Enter hours" class="hoursInput"></td>
+                <td><input type="text" placeholder="Enter partner name" class="nameInput"></td>
+                <td><input type="number" min="0" step="0.5" placeholder="Enter tippable hours" class="hoursInput"></td>
                 <td>$0.00</td>
                 <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
             `;
