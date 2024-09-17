@@ -67,6 +67,20 @@
         body.dark-mode .back-btn:hover {
             background-color: #006cbd;
         }
+
+        /* New style for changelog entries */
+        .changelog-entry {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode .changelog-entry {
+            background-color: #2d2d2d;
+            box-shadow: 0 2px 4px rgba(255,255,255,0.1);
+        }
     </style>
 </head>
 <body>
@@ -96,6 +110,35 @@
             <li>Adjusted store information text color for better visibility in dark mode</li>
             <li>Distinct visual separation between summary items</li>
             <li>Enhanced visibility of summary details in dark mode</li>
+        </ul>
+    </div>
+
+    <div class="changelog-entry">
+        <h3>September 17, 2024</h3>
+        <ul>
+            <li>Enhanced hourly tip rate calculation and display:
+                <ul>
+                    <li>Now showing full hourly tip rate with up to 5 decimal places</li>
+                    <li>Displaying both full and rounded hourly tip rates in the summary</li>
+                </ul>
+            </li>
+            <li>Improved tip calculation transparency:
+                <ul>
+                    <li>Now calculating and displaying tips for each barista using both full and rounded hourly rates</li>
+                    <li>Summary now shows both full and rounded tip amounts for each barista</li>
+                </ul>
+            </li>
+            <li>Updated terminology:
+                <ul>
+                    <li>Changed "Truncated Hourly Tip Rate" to "Rounded Hourly Tip Rate" for better clarity</li>
+                </ul>
+            </li>
+            <li>Improved summary display:
+                <ul>
+                    <li>Added clearer formatting for individual barista tip breakdowns</li>
+                    <li>Enhanced readability of full vs. rounded tip calculations</li>
+                </ul>
+            </li>
         </ul>
     </div>
 
