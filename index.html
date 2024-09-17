@@ -359,22 +359,32 @@
                 totalHours += hours;
             }
 
-            // Calculate the hourly tip rate
-            const hourlyTipRate = totalHours > 0 ? (totalTips / totalHours).toFixed(2) : 0;
+            // Calculate the full hourly tip rate with up to 5 decimal places
+            const fullHourlyTipRate = totalHours > 0 ? (totalTips / totalHours).toFixed(5).replace(/\.?0+$/, '') : '0';
+            
+            // Calculate the truncated hourly tip rate (for actual calculations)
+            const truncatedHourlyTipRate = totalHours > 0 ? Math.floor((totalTips / totalHours) * 100) / 100 : 0;
 
             let summaryHTML = `<h2>Tip Distribution Summary</h2>`;
-            summaryHTML += `<div class="hourly-rate">Hourly Tip Rate: $${hourlyTipRate}/hr</div>`;
+            summaryHTML += `<div class="hourly-rate">
+                Full Hourly Tip Rate: $${fullHourlyTipRate}/hr 
+                <br>
+                Rounded Hourly Tip Rate: $${truncatedHourlyTipRate.toFixed(2)}/hr
+            </div>`;
 
             for (let row of rows) {
                 const name = row.cells[0].getElementsByTagName('input')[0].value || "Unnamed";
                 const hours = parseFloat(row.cells[1].getElementsByTagName('input')[0].value) || 0;
-                const tipShare = Math.round(hours * hourlyTipRate);
+                const fullTipShare = (hours * parseFloat(fullHourlyTipRate)).toFixed(2);
+                const truncatedTipShare = Math.round(hours * truncatedHourlyTipRate);
 
-                row.cells[2].textContent = `$${tipShare}`;
+                row.cells[2].textContent = `$${truncatedTipShare}`;
                 summaryHTML += `
                     <div class="summary-item">
                         <span class="summary-name">${name}</span>
-                        <span class="summary-details">$${tipShare} (${hours} hours)</span>
+                        <span class="summary-details">
+                            Full: $${fullTipShare} | Rounded: $${truncatedTipShare} (${hours} hours)
+                        </span>
                     </div>`;
             }
 
