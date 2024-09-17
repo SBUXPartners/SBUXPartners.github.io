@@ -1,7 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"># Elevate to admin privileges if not already running as admin
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))  
+{  
+  $arguments = "& '" + $myinvocation.mycommand.definition + "'"
+  Start-Process powershell -Verb runAs -ArgumentList $arguments
+  Exit
+}
+
+# Function to set IMOD value
+function Set-XHCIImodValue {
+    param (
+        [string]$DeviceID,
+        [int]$ImodValue
+    )
+    
+    try {
+        $path = "HKLM:\SYSTEM\CurrentControlSet\Enum\$DeviceID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
+        Set-ItemProperty -Path $path -Name "IMODPeriod" -Value $ImodValue -ErrorAction Stop
+        Write-Host "Successfully set IMOD value to $ImodValue for device $DeviceID"
+        return $true
+    }
+    catch {
+        Write-Host "Failed to set IMOD value for device $DeviceID. Error: $_"
+        return $false
+    }
+}
+
+# Function to disable and re-enable a device
+function Restart-Device {
+    param (
+        [string]$DeviceID
+    )
+    
+    try {
+        $device = Get-PnpDevice -InstanceId $DeviceID -ErrorAction Stop
+        Disable-PnpDevice -InstanceId $DeviceID -Confirm:$false -ErrorAction Stop
+        Start-Sleep -Seconds 2
+        Enable-PnpDevice -InstanceId $DeviceID -Confirm:$false -ErrorAction Stop
+        Write-Host "Successfully restarted device $DeviceID"
+        return $true
+    }
+    catch {
+        Write-Host "Failed to restart device $DeviceID. Error: $_"
+        return $false
+    }
+}
+
+# Get all XHCI controllers
+$xhciControllers = Get-WmiObject Win32_PnPEntity | Where-Object { $_.Name -like "*eXtensible Host Controller*" }
+
+if ($xhciControllers) {
+    foreach ($controller in $xhciControllers) {
+        $deviceID = $controller.DeviceID -replace "\\", "\"
+        
+        # Set IMOD value (you can adjust this value as needed)
+        $imodValue = 500  # 500 microseconds is a common optimized value
+
+        $success = Set-XHCIImodValue -DeviceID $deviceID -ImodValue $imodValue
+        
+        if ($success) {
+            $restartSuccess = Restart-Device -DeviceID $deviceID
+            if (-not $restartSuccess) {
+                Write-Host "Changes for $deviceID will take effect after a system restart."
+            }
+        }
+    }
+    
+    Write-Host "XHCI IMOD optimization complete."
+}
+else {
+    Write-Host "No XHCI controllers found on this system."
+}
+
+Write-Host "Press any key to exit..."
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🫙 Tips 🫙</title>
     <link rel="icon" type="image/png" href="starbucks.png">
